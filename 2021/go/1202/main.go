@@ -22,17 +22,32 @@ func (m *Movement) SignedUnit() int {
 }
 
 type Position struct {
-	Horizontal, Depth int
+	Horizontal, Depth, Aim int
 }
 
 func GetFinalPosition(movements []Movement) Position {
-	finalPosition := Position{0, 0}
+	finalPosition := Position{0, 0, 0}
 
 	for _, movement := range movements {
 		if movement.Direction == "forward" {
 			finalPosition.Horizontal += movement.Unit
 		} else {
 			finalPosition.Depth += movement.SignedUnit()
+		}
+	}
+
+	return finalPosition
+}
+
+func GetFinalPositionWithAim(movements []Movement) Position {
+	finalPosition := Position{0, 0, 0}
+
+	for _, movement := range movements {
+		if movement.Direction == "forward" {
+			finalPosition.Horizontal += movement.Unit
+			finalPosition.Depth += finalPosition.Aim * movement.Unit
+		} else {
+			finalPosition.Aim += movement.SignedUnit()
 		}
 	}
 
@@ -93,6 +108,10 @@ func main() {
 
 	msg := fmt.Sprintf("Final position is a depth of %d and a horizonal position of %d", position.Depth, position.Horizontal)
 	fmt.Println(msg)
+	fmt.Printf("Final depth * position = %d\n", (position.Depth * position.Horizontal))
 
+	position = GetFinalPositionWithAim(movements)
+	msg = fmt.Sprintf("Final position is a depth of %d, a horizonal position of %d and aim of %d", position.Depth, position.Horizontal, position.Aim)
+	fmt.Println(msg)
 	fmt.Printf("Final depth * position = %d\n", (position.Depth * position.Horizontal))
 }
