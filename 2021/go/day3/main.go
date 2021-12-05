@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-type Result struct {
+type GammaAndEpsilonResult struct {
 	GammaRate, EpsilonRate string
 }
 
-func (r *Result) PowerConsumption() int64 {
+func (r *GammaAndEpsilonResult) PowerConsumption() int64 {
 	gamma, err := strconv.ParseInt(r.GammaRate, 2, 64)
 
 	if err != nil {
@@ -42,37 +42,152 @@ func FlipBinaryString(binaryString string) string {
 	return string(returnVal)
 }
 
-func FindRates(report []string) Result {
+func FindMostCommonBinary(report []string, position int) byte {
+	oneCount := 0
+	zeroCount := 0
+
+	for _, binaryString := range report {
+		if binaryString == "" {
+			continue
+		}
+
+		if binaryString[position] == '0' {
+			zeroCount += 1
+		} else {
+			oneCount += 1
+		}
+	}
+
+	if oneCount >= zeroCount {
+		return '1'
+	} else {
+		return '0'
+	}
+}
+
+func FindLeastCommonBinary(report []string, position int) byte {
+	oneCount := 0
+	zeroCount := 0
+
+	for _, binaryString := range report {
+		if binaryString == "" {
+			continue
+		}
+
+		if binaryString[position] == '0' {
+			zeroCount += 1
+		} else {
+			oneCount += 1
+		}
+	}
+
+	if oneCount < zeroCount {
+		return '1'
+	}
+
+	return '0'
+}
+
+func FindGammaAndEpsilonRates(report []string) GammaAndEpsilonResult {
 	lengthOfBinaryString := len(report[0]) // assume that every binary input is of equal length/base
 
 	gammaRate := make([]byte, lengthOfBinaryString)
 
 	for i := 0; i < lengthOfBinaryString; i++ {
-		zeroCount := 0
-		oneCount := 0
-
-		for _, binaryString := range report {
-			if binaryString == "" {
-				continue
-			}
-			if binaryString[i] == '0' {
-				zeroCount += 1
-			} else {
-				oneCount += 1
-			}
-		}
-
-		if oneCount > zeroCount {
-			gammaRate[i] = '1'
-		} else {
-			gammaRate[i] = '0'
-		}
+		gammaRate[i] = FindMostCommonBinary(report, i)
 	}
 
 	gammaRateString := string(gammaRate)
 	epsilonRateString := FlipBinaryString(gammaRateString)
 
-	return Result{gammaRateString, epsilonRateString}
+	return GammaAndEpsilonResult{gammaRateString, epsilonRateString}
+}
+
+type OxygenAndCO2Result struct {
+	OxygenBinaryString, CO2BinaryString string
+}
+
+func (o *OxygenAndCO2Result) LifeSupportRating() int64 {
+	oxygen, err := strconv.ParseInt(o.OxygenBinaryString, 2, 64)
+
+	if err != nil {
+		return 0
+	}
+
+	co2, err := strconv.ParseInt(o.CO2BinaryString, 2, 64)
+
+	if err != nil {
+		return 0
+	}
+
+	return oxygen * co2
+}
+func FindOxygenAndCO2(report []string) OxygenAndCO2Result {
+	oxygen := FindOxygen(report)
+	co2 := FindCO2(report)
+
+	return OxygenAndCO2Result{oxygen, co2}
+}
+
+func FindOxygen(report []string) string {
+	lengthOfBinaryString := len(report[0])
+
+	subset := report
+
+	for i := 0; i < lengthOfBinaryString; i++ {
+		fmt.Println("----", len(subset))
+		if len(subset) == 1 {
+			break
+		}
+
+		commonBinary := FindMostCommonBinary(subset, i)
+		fmt.Printf("Most common binary at position %d: %s", i, string(commonBinary))
+
+		newSubset := []string{}
+
+		for _, sub := range subset {
+			if sub == "" {
+				continue
+			}
+
+			if sub[i] == commonBinary {
+				newSubset = append(newSubset, sub)
+			}
+		}
+
+		subset = newSubset
+	}
+
+	return subset[0]
+}
+
+func FindCO2(report []string) string {
+	lengthOfBinaryString := len(report[0])
+
+	subset := report
+
+	for i := 0; i < lengthOfBinaryString; i++ {
+		if len(subset) == 1 {
+			break
+		}
+
+		commonBinary := FindLeastCommonBinary(subset, i)
+
+		newSubset := []string{}
+
+		for _, sub := range subset {
+			if sub == "" {
+				continue
+			}
+			if sub[i] == commonBinary {
+				newSubset = append(newSubset, sub)
+			}
+		}
+
+		subset = newSubset
+	}
+
+	return subset[0]
 }
 
 func main() {
@@ -82,9 +197,15 @@ func main() {
 		panic(err)
 	}
 
-	rates := FindRates(report)
+	rates := FindGammaAndEpsilonRates(report)
 
-	fmt.Printf("Got a gamma rate of %d, epsilon rate of %d, resulting in a power consumption of %d", rates.GammaRate, rates.EpsilonRate, rates.PowerConsumption())
+	fmt.Printf("Got a gamma rate of %s, epsilon rate of %s, resulting in a power consumption of %d", rates.GammaRate, rates.EpsilonRate, rates.PowerConsumption())
+
+	oxygenAndCo2Result := FindOxygenAndCO2(report)
+
+	rating := oxygenAndCo2Result.LifeSupportRating()
+
+	fmt.Printf("Got an oxygen level of %s, co2 level of %s, resulting in a life support rating of %d", oxygenAndCo2Result.OxygenBinaryString, oxygenAndCo2Result.CO2BinaryString, rating)
 }
 
 func loadInput() ([]string, error) {

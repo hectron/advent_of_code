@@ -55,8 +55,8 @@ func TestFindRates(t *testing.T) {
 			"01010",
 		}
 
-		got := FindRates(report)
-		want := Result{"10110", "01001"}
+		got := FindGammaAndEpsilonRates(report)
+		want := GammaAndEpsilonResult{"10110", "01001"}
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v, want %v", got, want)
@@ -64,14 +64,105 @@ func TestFindRates(t *testing.T) {
 	})
 }
 
-func TestResultPowerConsumption(t *testing.T) {
+func TestGammaAndEpsilonResultPowerConsumption(t *testing.T) {
 	t.Run("It calculates the correct power consumption rate", func(t *testing.T) {
-		report := Result{"10110", "01001"}
+		result := GammaAndEpsilonResult{"10110", "01001"}
 		want := int64(198)
-		got := report.PowerConsumption()
+		got := result.PowerConsumption()
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
+		}
+	})
+}
+
+// func TestFindOxygenAndCO2(t *testing.T) {
+// 	t.Run("It returns the correct oxygen and CO2 binary strings", func(t *testing.T) {
+// 		report := []string{
+// 			"01001",
+// 			"00100",
+// 			"11110",
+// 			"10110",
+// 			"10111",
+// 			"10101",
+// 			"01111",
+// 			"00111",
+// 			"11100",
+// 			"10000",
+// 			"11001",
+// 			"00010",
+// 			"01010",
+// 		}
+//
+// 		got := FindOxygenAndCO2(report)
+// 		want := OxygenAndCO2Result{"10111", "01010"}
+//
+// 		if !reflect.DeepEqual(got, want) {
+// 			t.Errorf("got %v, want %v", got, want)
+// 		}
+// 	})
+// }
+
+func TestFindOxygen(t *testing.T) {
+	t.Run("it returns the binary with the most common numbers", func(t *testing.T) {
+		report := []string{
+			"00100",
+			"11110",
+			"10110",
+			"10111",
+			"10101",
+			"01111",
+			"00111",
+			"11100",
+			"10000",
+			"11001",
+			"00010",
+			"01010",
+		}
+
+		got := FindOxygen(report)
+		want := "10111" // 10111
+
+		if got != want {
+			t.Errorf("got %s want %s", got, want)
+		}
+	})
+}
+
+func TestFindCO2(t *testing.T) {
+	t.Run("it returns the binary with the least common numbers", func(t *testing.T) {
+		report := []string{
+			"00100",
+			"11110",
+			"10110",
+			"10111",
+			"10101",
+			"01111",
+			"00111",
+			"11100",
+			"10000",
+			"11001",
+			"00010",
+			"01010",
+		}
+
+		got := FindCO2(report)
+		want := "01010"
+
+		if got != want {
+			t.Errorf("got %s want %s", got, want)
+		}
+	})
+}
+
+func TestOxygenAndCO2Result(t *testing.T) {
+	t.Run("It calculates the correct life support rating", func(t *testing.T) {
+		result := OxygenAndCO2Result{"10111", "01010"}
+		want := int64(230)
+		got := result.LifeSupportRating()
+
+		if got != want {
+			t.Errorf("got %d want %d", got, want)
 		}
 	})
 }
