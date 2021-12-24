@@ -12,13 +12,9 @@ func CalculateCheapestCostAndRoute(positions []int) (int, int) {
 	bestCost := 0
 
 	for i := 0; i < len(positions); i++ {
-		bestCost += positions[i]
-	}
-
-	for i := 0; i < len(positions); i++ {
 		cost := CostOfMovingTo(positions, i)
 
-		if cost < bestCost {
+		if bestCost == 0 || cost < bestCost {
 			bestPosition = i
 			bestCost = cost
 		}
@@ -37,7 +33,10 @@ func CostOfMovingTo(positions []int, position int) int {
 			difference *= -1
 		}
 
-		cost += difference
+		//cost += difference
+		for i := 1; i <= difference; i++ {
+			cost += i
+		}
 	}
 
 	return cost
