@@ -21,32 +21,56 @@ func (l *LanternFish) Sleep() bool {
 	}
 }
 
-func ObserveForDays(lanternFish []LanternFish, days int) []LanternFish {
-	for d := 0; d < days; d++ {
-		newFishCount := 0
+//func ObserveForDays(lanternFish []LanternFish, days int) []LanternFish {
+//	for d := 0; d < days; d++ {
+//		fmt.Printf("Day %d\n", d+1)
+//		newFishCount := 0
+//
+//		for idx, fish := range lanternFish {
+//			hadSpawn := fish.Sleep()
+//
+//			if hadSpawn {
+//				newFishCount += 1
+//			}
+//
+//			lanternFish[idx] = fish
+//		}
+//
+//		fmt.Printf("There are %d new fish\n", newFishCount)
+//
+//		for i := 0; i < newFishCount; i++ {
+//			lanternFish = append(lanternFish, LanternFish{8})
+//		}
+//	}
+//
+//	return lanternFish
+//}
 
-		for idx, fish := range lanternFish {
-			hadSpawn := fish.Sleep()
+func ObserveForDays(fishes []LanternFish, days int) map[int]int {
+	daysToFish := map[int]int{}
 
-			if hadSpawn {
-				newFishCount += 1
-			}
-
-			lanternFish[idx] = fish
-		}
-
-		for i := 0; i < newFishCount; i++ {
-			lanternFish = append(lanternFish, LanternFish{8})
-		}
+	for _, fish := range fishes {
+		daysToFish[fish.Timer] += 1
 	}
 
-	return lanternFish
-}
+	for d := 0; d < days; d++ {
+		daysToFishesLeft := map[int]int{}
+		for i := 0; i <= 8; i++ {
+			if fishCount := daysToFish[i]; fishCount > 0 {
+				daysToFishesLeft[i-1] = fishCount
+			}
+		}
 
-func CountFishAfterNDays(lanternFish []LanternFish, days int) int {
-	fishes := ObserveForDays(lanternFish, days)
+		if daysToFishesLeft[-1] > 0 {
+			daysToFishesLeft[6] += daysToFishesLeft[-1]
+			daysToFishesLeft[8] = daysToFishesLeft[-1]
+			delete(daysToFishesLeft, -1)
+		}
 
-	return len(fishes)
+		daysToFish = daysToFishesLeft
+	}
+
+	return daysToFish
 }
 
 func ParseInput(input string) []LanternFish {
@@ -94,10 +118,16 @@ func main() {
 		panic(err)
 	}
 
-	days := 80
-	input := ParseInput(inputTxt)
+	startFish := ParseInput(inputTxt)
 
-	fishes := ObserveForDays(input, days)
+	days := 256
+	daysToFishCount := ObserveForDays(startFish, days)
 
-	fmt.Printf("After %d days, there are %d fish", days, len(fishes))
+	totalFishCount := 0
+
+	for _, count := range daysToFishCount {
+		totalFishCount += count
+	}
+
+	fmt.Printf("After %d days, there are %d fish", days, totalFishCount)
 }

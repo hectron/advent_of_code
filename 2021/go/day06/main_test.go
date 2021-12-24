@@ -67,12 +67,12 @@ func TestObserveForDays(t *testing.T) {
 	testCases := []struct {
 		Description string
 		Days        int
-		Want        []LanternFish
+		Want        map[int]int
 	}{
-		{"Observing for a single day", 1, []LanternFish{{2}, {3}, {2}, {0}, {1}}},
-		{"Observing for a single birth", 2, []LanternFish{{1}, {2}, {1}, {6}, {0}, {8}}},
-		{"Observing for multiple births", 4, []LanternFish{{6}, {0}, {6}, {4}, {5}, {6}, {7}, {8}, {8}}},
-		{"Observing for 18 days", 18, []LanternFish{{6}, {0}, {6}, {4}, {5}, {6}, {0}, {1}, {1}, {2}, {6}, {0}, {1}, {1}, {1}, {2}, {2}, {3}, {3}, {4}, {6}, {7}, {8}, {8}, {8}, {8}}},
+		{"Observing for a single day", 1, map[int]int{2: 2, 3: 1, 0: 1, 1: 1}},
+		{"Observing for a single birth", 2, map[int]int{1: 2, 2: 1, 0: 1, 6: 1, 8: 1}},
+		{"Observing for multiple births", 4, map[int]int{6: 3, 0: 1, 4: 1, 5: 1, 7: 1, 8: 2}},
+		{"Observing for 18 days", 18, map[int]int{6: 5, 0: 3, 3: 2, 4: 2, 5: 1, 1: 5, 2: 3, 7: 1, 8: 4}},
 	}
 
 	for _, tc := range testCases {
@@ -81,10 +81,6 @@ func TestObserveForDays(t *testing.T) {
 			input := ParseInput(inputTxt)
 
 			got := ObserveForDays(input, tc.Days)
-
-			if len(got) != len(tc.Want) {
-				t.Errorf("got len %d, want len %d", len(got), len(tc.Want))
-			}
 
 			if !reflect.DeepEqual(got, tc.Want) {
 				t.Errorf("got %v, want %v", got, tc.Want)
