@@ -33,7 +33,6 @@ func CostOfMovingTo(positions []int, position int) int {
 			difference *= -1
 		}
 
-		//cost += difference
 		for i := 1; i <= difference; i++ {
 			cost += i
 		}
